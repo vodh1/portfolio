@@ -75,14 +75,14 @@ const HeroSection = () => {
 						transition={{ delay: 0.3, duration: 0.5 }}
 						className='flex flex-wrap gap-4 justify-center'
 					>
-						<Button
-							href='https://www.linkedin.com/in/andre-lee-cuyugan-125068365/'
-							borderRadius='1.75rem'
-							className='bg-white text-black border-neutral-200 dark:border-slate-800 px-6 py-3'
-						>
-							Contact Me
-						</Button>
-
+						<a href='https://www.linkedin.com/in/andre-lee-cuyugan-125068365/'>
+							<Button
+								borderRadius='1.75rem'
+								className='bg-white text-black border-neutral-200 dark:border-slate-800 px-6 py-3'
+							>
+								Contact Me
+							</Button>
+						</a>
 						<div className='flex gap-4'>
 							<a
 								href='https://github.com/vodh1'

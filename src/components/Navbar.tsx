@@ -157,7 +157,7 @@ const Navbar = () => {
 					{/* Contact button */}
 					<div className='relative z-20 flex items-center'>
 						<a
-							href='#contact'
+							href='https://www.linkedin.com/in/andre-lee-cuyugan-125068365/'
 							className='px-4 py-2 rounded-md text-sm font-bold bg-gradient-to-r from-purple-500 to-purple-700 text-white shadow-lg hover:-translate-y-0.5 transition duration-200'
 						>
 							Contact Me
