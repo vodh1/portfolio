@@ -1,8 +1,0 @@
-import{r as e,j as c,c as R}from"./index-CbrpvIgB.js";const k=e.memo(({className:g,initialCentered:d=!1,...v})=>{const[u,l]=e.useState({x:0,y:0}),[x,b]=e.useState(0),[h,y]=e.useState(0),z=e.useRef(null),t=e.useRef(null),m=e.useRef(0);e.useEffect(()=>{if(typeof window>"u")return;const w=()=>{b(window.innerWidth),y(window.innerHeight)},f=o=>{const r=Date.now();r-m.current>50&&(m.current=r,t.current&&cancelAnimationFrame(t.current),t.current=requestAnimationFrame(()=>{l({x:o.clientX,y:o.clientY})}))};let a;const p=()=>{clearTimeout(a),a=window.setTimeout(w,250)};if(d){const o=window.innerWidth/2,r=window.innerHeight/2;l({x:o,y:r})}return w(),window.addEventListener("resize",p),window.addEventListener("pointermove",f),()=>{window.removeEventListener("resize",p),window.removeEventListener("pointermove",f),t.current&&cancelAnimationFrame(t.current),clearTimeout(a)}},[d]);const i=u.x/x,s=u.y/h,n=40;return c.jsxs("div",{className:R("pointer-events-none z-0 absolute inset-0 overflow-hidden bg-black opacity-30",g),...v,ref:z,children:[c.jsx("div",{className:"absolute inset-0 z-10 bg-black [mask-image:radial-gradient(transparent,white)] mix-blend-overlay",style:{opacity:.6}}),c.jsx("div",{className:"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40%] aspect-square",style:{top:`calc(50% + ${s>.5,(s-.5)*n}px)`,left:`calc(50% + ${i>.5,(i-.5)*n}px)`,backgroundImage:`conic-gradient(
-                from 180deg at 50% 50%,
-                #9333ea 0deg,
-                #7c3aed 72deg,
-                #6366f1 144deg,
-                #3b82f6 216deg,
-                #8b5cf6 288deg
-              )`,filter:"blur(60px)"}})]})}),j={BackgroundBeams:k};export{k as BackgroundBeams,j as default};
