@@ -91,7 +91,7 @@ const HeroSection = () => {
                 <Github className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="https://www.linkedin.com/in/andre-lee-cuyugan-125068365/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-900 border border-gray-800 transition-all hover:bg-gray-800"
