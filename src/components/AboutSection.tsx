@@ -1,16 +1,51 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { TextRevealCard } from './ui/text-reveal-card';
 
 const AboutSection = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+
+  // Check if viewport is mobile size
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Check on initial render
+    checkMobile();
+    
+    // Listen for resize events
+    window.addEventListener('resize', checkMobile);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Simplified animations for mobile
+  const getAnimationProps = () => {
+    if (isMobile || prefersReducedMotion) {
+      return {
+        initial: { opacity: 0 },
+        whileInView: { opacity: 1 },
+        transition: { duration: 0.3 },
+        viewport: { once: true, margin: "-50px" }
+      };
+    }
+    
+    return {
+      initial: { opacity: 0, y: 20 },
+      whileInView: { opacity: 1, y: 0 },
+      transition: { duration: 0.5 },
+      viewport: { once: true }
+    };
+  };
+  
   return (
     <section id="about" className="py-20 overflow-hidden">
       <div className="container mx-auto px-4">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
+          {...getAnimationProps()}
           className="mb-10 text-center"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">About Me</h2>
@@ -19,8 +54,8 @@ const AboutSection = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             viewport={{ once: true }}
           >
@@ -28,15 +63,16 @@ const AboutSection = () => {
               text="Andre Lee R. Cuyugan"
               revealText="Computing Student"
               className="w-full h-60 md:h-80"
+              isMobile={isMobile}
             >
               <div className="absolute inset-0 h-full w-full bg-gradient-to-br from-purple-700 to-violet-900 opacity-90" />
             </TextRevealCard>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
             viewport={{ once: true }}
             className="text-gray-300"
           >

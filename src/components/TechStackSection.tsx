@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { InfiniteMovingCards } from './ui/infinite-moving-cards';
 
 const techStack = [
@@ -115,6 +115,25 @@ const skillCards = [
 
 // New component for detailed skill cards
 const SkillDetail = ({ skill, onClose }: { skill: typeof skillCards[0], onClose: () => void }) => {
+  const [isMobile, setIsMobile] = React.useState(false);
+  const prefersReducedMotion = useReducedMotion();
+
+  // Check if viewport is mobile size
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Check on initial render
+    checkMobile();
+    
+    // Listen for resize events
+    window.addEventListener('resize', checkMobile);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Function to determine the gradient class based on the skill title
   const getGradientClass = () => {
     switch(skill.title) {
@@ -143,13 +162,18 @@ const SkillDetail = ({ skill, onClose }: { skill: typeof skillCards[0], onClose:
     }
   };
 
+  // Simplified motion for mobile or reduced motion preference
+  const buttonMotionProps = prefersReducedMotion || isMobile
+    ? { whileTap: { scale: 0.97 } }
+    : { whileHover: { scale: 1.05 }, whileTap: { scale: 0.95 } };
+
   return (
     <motion.div 
       className="relative"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      transition={{ duration: 0.4 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: isMobile ? 0.2 : 0.4 }}
     >
       {/* Outer glow effect */}
       <div className={`${getOuterGlowGradient()} p-px rounded-xl`}>
@@ -161,8 +185,7 @@ const SkillDetail = ({ skill, onClose }: { skill: typeof skillCards[0], onClose:
               <motion.button
                 className="p-2 rounded-full bg-white/10 text-white backdrop-blur-sm border border-white/10 hover:bg-white/20 transition-colors"
                 onClick={onClose}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                {...buttonMotionProps}
                 aria-label="Close detail view"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -178,13 +201,20 @@ const SkillDetail = ({ skill, onClose }: { skill: typeof skillCards[0], onClose:
                 {skill.technologies.map((tech, index) => (
                   <div 
                     key={index} 
-                    className="flex flex-col items-center bg-black/40 rounded-lg p-4 backdrop-blur-sm transition-all hover:scale-105 hover:bg-black/30 border border-white/5 hover:border-white/10"
+                    className={`flex flex-col items-center bg-black/40 rounded-lg p-4 backdrop-blur-sm border border-white/5 
+                      ${!isMobile ? "transition-all hover:scale-105 hover:bg-black/30 hover:border-white/10" : ""}
+                    `}
                   >
-                    <div className="w-12 h-12 mb-3 flex items-center justify-center rounded-md bg-white/10 p-2 hover:bg-white/15 transition-colors">
+                    <div className={`w-12 h-12 mb-3 flex items-center justify-center rounded-md bg-white/10 p-2 
+                      ${!isMobile ? "hover:bg-white/15 transition-colors" : ""}
+                    `}>
                       <img 
                         src={tech.logo} 
                         alt={tech.title} 
-                        className={`w-full h-full ${tech.type === 'Database' ? 'drop-shadow-[0_0_3px_rgba(255,255,255,0.5)]' : ''} transition-transform hover:scale-110`}
+                        className={`w-full h-full ${tech.type === 'Database' ? 'drop-shadow-[0_0_3px_rgba(255,255,255,0.5)]' : ''} 
+                          ${!isMobile ? "transition-transform hover:scale-110" : ""}
+                        `}
+                        loading="lazy"
                       />
                     </div>
                     <span className="text-white font-medium text-center text-sm">{tech.title}</span>
@@ -214,6 +244,24 @@ const SkillFocusCards = ({
   onSelect: (index: number) => void 
 }) => {
   const [hovered, setHovered] = React.useState<number | null>(null);
+  const [isMobile, setIsMobile] = React.useState(false);
+  const prefersReducedMotion = useReducedMotion();
+
+  // Check if viewport is mobile size
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Check on initial render
+    checkMobile();
+    
+    // Listen for resize events
+    window.addEventListener('resize', checkMobile);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Function to get gradient overlay for each card
   const getGradientOverlay = (index: number) => {
@@ -229,43 +277,67 @@ const SkillFocusCards = ({
     }
   };
 
+  // Optimized transition for mobile
+  const transitionClass = isMobile || prefersReducedMotion 
+    ? "transition-opacity duration-200" 
+    : "transition-all duration-300 ease-out";
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-5xl mx-auto md:px-8 w-full">
       {cards.map((card, index) => (
         <div
           key={card.title}
           onClick={() => onSelect(index)}
-          onMouseEnter={() => setHovered(index)}
-          onMouseLeave={() => setHovered(null)}
-          className={`rounded-lg relative bg-gray-100 dark:bg-neutral-900 overflow-hidden h-60 md:h-80 w-full transition-all duration-300 ease-out cursor-pointer border border-white/5 shadow-lg shadow-purple-500/5
-            ${hovered !== null && hovered !== index ? "blur-sm scale-[0.98] opacity-70" : "hover:scale-[1.02] hover:shadow-purple-500/20"}
+          onMouseEnter={() => !isMobile && setHovered(index)}
+          onMouseLeave={() => !isMobile && setHovered(null)}
+          className={`rounded-lg relative bg-gray-100 dark:bg-neutral-900 overflow-hidden h-60 md:h-80 w-full ${transitionClass} cursor-pointer border border-white/5 shadow-lg shadow-purple-500/5
+            ${!isMobile && hovered !== null && hovered !== index ? "blur-sm scale-[0.98] opacity-70" : ""}
+            ${!isMobile ? "hover:scale-[1.02] hover:shadow-purple-500/20" : ""}
           `}
         >
           <img
             src={card.src}
             alt={card.title}
             className="object-cover absolute inset-0 h-full w-full filter saturate-[0.8] contrast-[1.1]"
+            loading="lazy"
           />
           
           {/* Base gradient overlay for each card */}
           <div className={`absolute inset-0 ${getGradientOverlay(index)}`}></div>
           
-          {/* Hover overlay with additional details */}
-          <div
-            className={`absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col justify-end py-8 px-6 transition-all duration-300
-              ${hovered === index ? "opacity-100" : "opacity-0"}
-            `}
-          >
-            <div className="text-xl md:text-2xl font-medium text-white mb-2">
-              {card.title}
+          {/* Mobile info overlay - always visible on mobile */}
+          {isMobile && (
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col justify-end py-8 px-6">
+              <div className="text-xl font-medium text-white mb-2">
+                {card.title}
+              </div>
+              <p className="text-sm text-gray-200 opacity-90 line-clamp-2 mb-2">
+                {card.description}
+              </p>
+              <p className="text-sm text-purple-300 font-medium">
+                Tap to view details
+              </p>
             </div>
-            <p className="text-sm text-gray-200 opacity-90 line-clamp-2 mb-3">
-              {card.description}
-            </p>
-            <p className="text-sm text-purple-300 font-medium">
-              Click to view details
-            </p>
-          </div>
+          )}
+          
+          {/* Desktop hover overlay with additional details - only on non-mobile */}
+          {!isMobile && (
+            <div
+              className={`absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col justify-end py-8 px-6 ${transitionClass}
+                ${hovered === index ? "opacity-100" : "opacity-0"}
+              `}
+            >
+              <div className="text-xl md:text-2xl font-medium text-white mb-2">
+                {card.title}
+              </div>
+              <p className="text-sm text-gray-200 opacity-90 line-clamp-2 mb-3">
+                {card.description}
+              </p>
+              <p className="text-sm text-purple-300 font-medium">
+                Click to view details
+              </p>
+            </div>
+          )}
         </div>
       ))}
     </div>
@@ -274,6 +346,24 @@ const SkillFocusCards = ({
 
 const TechStackSection = () => {
   const [selectedSkill, setSelectedSkill] = React.useState<number | null>(null);
+  const [isMobile, setIsMobile] = React.useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  
+  // Check if viewport is mobile size
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Check on initial render
+    checkMobile();
+    
+    // Listen for resize events
+    window.addEventListener('resize', checkMobile);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleSelectSkill = (index: number) => {
     setSelectedSkill(index);
@@ -288,24 +378,59 @@ const TechStackSection = () => {
         
         window.scrollTo({
           top: offsetPosition,
-          behavior: "smooth"
+          behavior: prefersReducedMotion || isMobile ? "auto" : "smooth"
         });
       }
-    }, 100);
+    }, isMobile ? 50 : 100);
   };
   
   const handleCloseDetail = () => {
     setSelectedSkill(null);
   };
 
+  // Adjust animation props based on device
+  const getAnimationProps = () => {
+    if (prefersReducedMotion || isMobile) {
+      return {
+        initial: { opacity: 0 },
+        whileInView: { opacity: 1 },
+        transition: { duration: 0.2 },
+        viewport: { once: true, margin: "-50px" }
+      };
+    }
+    
+    return {
+      initial: { opacity: 0, y: 20 },
+      whileInView: { opacity: 1, y: 0 },
+      transition: { duration: 0.5 },
+      viewport: { once: true }
+    };
+  };
+
+  // Adjust detail animation props for mobile
+  const getDetailAnimationProps = () => {
+    if (prefersReducedMotion || isMobile) {
+      return {
+        initial: { opacity: 0 },
+        animate: { opacity: 1 },
+        exit: { opacity: 0 },
+        transition: { duration: 0.2 }
+      };
+    }
+    
+    return {
+      initial: { opacity: 0, y: 20 },
+      animate: { opacity: 1, y: 0 },
+      exit: { opacity: 0, y: 20 },
+      transition: { duration: 0.4 }
+    };
+  };
+
   return (
     <section id="tech-stack" className="py-20 overflow-hidden">
       <div className="container mx-auto px-4">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
+          {...getAnimationProps()}
           className="mb-10 text-center"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Tech Stack</h2>
@@ -320,7 +445,7 @@ const TechStackSection = () => {
             <InfiniteMovingCards
               items={techStack}
               direction="right"
-              speed="slow"
+              speed={isMobile ? "fast" : "slow"}
               className="py-4"
             />
           </div>
@@ -343,10 +468,7 @@ const TechStackSection = () => {
               {selectedSkill !== null && (
                 <motion.div 
                   key="skill-detail"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 20 }}
-                  transition={{ duration: 0.4 }}
+                  {...getDetailAnimationProps()}
                   className="mt-24 max-w-5xl mx-auto pt-6"
                 >
                   <SkillDetail 

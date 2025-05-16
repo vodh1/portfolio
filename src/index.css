@@ -3,28 +3,32 @@
 @tailwind utilities;
 
 body {
-  color: white;
-  background-color: black;
+	color: white;
+	background-color: black;
 }
 
 @keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(calc(-250px * 5));
-  }
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(calc(-250px * 5));
+	}
 }
 
 .animate-scroll {
-  animation: scroll var(--animation-duration, 40s) var(--animation-direction, forwards) linear infinite;
+	animation: scroll var(--animation-duration, 40s)
+		var(--animation-direction, forwards) linear infinite;
 }
 
 .tech-badge {
-  @apply text-sm uppercase tracking-widest mb-2 font-bold;
+	@apply text-sm uppercase tracking-widest mb-2 font-bold;
 }
 
 /* Smooth scroll behavior */
 html {
-  scroll-behavior: smooth;
+	scroll-behavior: smooth;
 }
+
+/* Import mobile optimizations */
+@import './styles/mobile-optimizations.css';

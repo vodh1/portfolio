@@ -12,20 +12,35 @@ const SparklesCore = lazy(() => import('./components/ui/sparkles').then(module =
 
 function App() {
   const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
     setIsMounted(true);
+    
+    // Check if device is mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Check on initial render
+    checkMobile();
+    
+    // Listen for resize events
+    window.addEventListener('resize', checkMobile);
     
     // Force re-render after a short delay to ensure everything is properly positioned
     const timer = setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
     }, 100);
     
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkMobile);
+    };
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden mobile-optimize passive-events">
       {/* Navbar is outside other containers to ensure it's always visible */}
       <Navbar />
       
@@ -38,10 +53,10 @@ function App() {
                 background="transparent"
                 minSize={0.6}
                 maxSize={1.4}
-                particleDensity={20}
+                particleDensity={isMobile ? 10 : 20}
                 className="w-full h-full"
                 particleColor="#FFFFFF"
-                speedFactor={0.5}
+                speedFactor={isMobile ? 0.3 : 0.5}
               />
             </div>
           </div>

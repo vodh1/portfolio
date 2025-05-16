@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { cn } from "../../utils/cn";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 export const InfiniteMovingCards = ({
   items,
@@ -23,6 +23,23 @@ export const InfiniteMovingCards = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLUListElement>(null);
   const [start, setStart] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Check on initial render
+    checkMobile();
+    
+    // Listen for resize events
+    window.addEventListener('resize', checkMobile);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     addAnimation();
@@ -32,10 +49,17 @@ export const InfiniteMovingCards = ({
   const addAnimation = () => {
     if (containerRef.current && scrollerRef.current) {
       const scrollerContent = Array.from(scrollerRef.current.children);
-      scrollerContent.forEach((item) => {
-        const duplicatedItem = item.cloneNode(true);
-        scrollerRef.current?.appendChild(duplicatedItem);
-      });
+      
+      // For performance on mobile, clone fewer items
+      const cloneCount = isMobile ? 1 : 2;
+      
+      for (let i = 0; i < cloneCount; i++) {
+        scrollerContent.forEach((item) => {
+          const duplicatedItem = item.cloneNode(true);
+          scrollerRef.current?.appendChild(duplicatedItem);
+        });
+      }
+      
       getDirection();
       getSpeed();
       setStart(true);
@@ -60,15 +84,23 @@ export const InfiniteMovingCards = ({
 
   const getSpeed = () => {
     if (containerRef.current) {
-      if (speed === "fast") {
-        containerRef.current.style.setProperty("--animation-duration", "20s");
+      if (prefersReducedMotion) {
+        // Greatly slow down or stop animation for users who prefer reduced motion
+        containerRef.current.style.setProperty("--animation-duration", "200s");
+      } else if (speed === "fast") {
+        containerRef.current.style.setProperty("--animation-duration", isMobile ? "15s" : "20s");
       } else if (speed === "normal") {
-        containerRef.current.style.setProperty("--animation-duration", "40s");
+        containerRef.current.style.setProperty("--animation-duration", isMobile ? "30s" : "40s");
       } else {
-        containerRef.current.style.setProperty("--animation-duration", "80s");
+        containerRef.current.style.setProperty("--animation-duration", isMobile ? "60s" : "80s");
       }
     }
   };
+
+  // Basic motion prop for better performance
+  const cardMotion = (!isMobile && !prefersReducedMotion) 
+    ? { whileHover: { scale: 1.05 } } 
+    : {};
 
   return (
     <div
@@ -83,7 +115,7 @@ export const InfiniteMovingCards = ({
         className={cn(
           "flex min-w-full shrink-0 gap-4 py-4",
           start && "animate-scroll",
-          pauseOnHover && "hover:[animation-play-state:paused]"
+          pauseOnHover && !isMobile && "hover:[animation-play-state:paused]"
         )}
       >
         {items.map((item, idx) => (
@@ -104,7 +136,7 @@ export const InfiniteMovingCards = ({
               }}
             />
             <motion.div
-              whileHover={{ scale: 1.05 }}
+              {...cardMotion}
               className="h-full flex flex-col justify-between"
             >
               <div className="tech-badge mb-2"
@@ -117,6 +149,7 @@ export const InfiniteMovingCards = ({
                   src={item.logo} 
                   alt={item.title} 
                   className="w-12 h-12"
+                  loading="lazy"
                 />
               </div>
               <div className="text-xl font-bold text-white mb-2 text-center">
