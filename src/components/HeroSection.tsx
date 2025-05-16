@@ -74,7 +74,7 @@ const HeroSection = () => {
 		>
 			<div className='absolute inset-0 flex items-center justify-center'>
 				<div className='w-full max-w-7xl mx-auto px-4'>
-					<div className='flex flex-col items-center justify-center text-center w-full'>
+					<div className={`flex flex-col items-center justify-center text-center w-full ${isMobile ? '-mt-16' : ''}`}>
 						<motion.div
 							{...getAnimationProps()}
 							className='mb-8 w-full'
